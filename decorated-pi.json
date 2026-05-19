@@ -1,0 +1,7 @@
+{
+  "modules": {
+    "safety": true,
+    "lsp": false,
+    "smart-at": true
+  }
+}

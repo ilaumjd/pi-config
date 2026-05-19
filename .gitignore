@@ -1,0 +1,21 @@
+# Settings (user explicitly excludes from repo)
+settings.json
+
+# Secrets
+auth.json
+
+# Generated / runtime
+npm/
+sessions/
+run-history.jsonl
+models.json
+mcp-cache.json
+
+# Extension runtime data
+extensions/app_data/
+
+# LSP cache
+.pi-lens/
+
+# OS files
+.DS_Store
