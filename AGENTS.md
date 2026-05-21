@@ -45,12 +45,13 @@ After editing any config file → run `/reload` in pi.
 
 ## Extensions
 
-Three custom `.ts` extensions in `extensions/`:
+Five custom `.ts` extensions in `extensions/`:
 
 - **`custom-footer.ts`** — compact status bar footer (branch, model, tokens, cost). Toggle with `/footer` command.
 - **`pi-info.ts`** — system info viewer. Usage: `/info`, `/info all`, `/info tools`, `/info models`, `/info extensions`, `/info commands`, `/info context`
 - **`youtube-transcript/`** — fetch YouTube video transcripts and inject them into the conversation (directory-based extension with own `package.json`). Usage: `/youtube-transcript <video-url-or-id>` fetches the transcript and passes it to the agent as a user message. Registers the `youtube_transcript` tool for LLM use.
 - **`ask-user.ts`** — lean interactive `ask_user` tool (lean rebuild of `pi-ask-user` npm package). Registers the `ask_user` tool for decision gates. Supports single-select from options and freeform text input. Skill file at `extensions/ask-user.skill/` is registered via `resources_discover` event.
+- **`yeet.ts`** — add, commit, push, and optionally create a PR. Usage: `/yeet` for standard flow, `/yeet skip push` for commit only.
 
 Extensions are auto-discovered by pi: any `.ts`/`.js` file or directory with `index.ts`/`index.js`/`package.json` in `~/.pi/agent/extensions/` or `<project>/.pi/extensions/`.
 
