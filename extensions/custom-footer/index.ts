@@ -167,12 +167,23 @@ function createFooterRenderer(ctx: ExtensionContext, pi: ExtensionAPI) {
 				const statuses: Map<string, string> = footerData.getExtensionStatuses();
 				if (statuses.size === 0) return [];
 
-				const parts = Array.from(statuses.entries())
+				const tpsText = statuses.get("tps");
+				const otherTexts = Array.from(statuses.entries())
+					.filter(([key]) => key !== "tps")
 					.sort((a, b) => a[0].localeCompare(b[0]))
 					.map(([, text]) => text);
 
-				const statusText = theme.fg("dim", parts.join(" "));
-				return [truncateToWidth(" " + statusText, width)];
+				const left = theme.fg("dim", otherTexts.join(" "));
+				if (tpsText) {
+					const leftW = visibleWidth(left);
+					const rightW = visibleWidth(tpsText);
+					if (leftW + rightW + 2 <= width) {
+						const pad = " ".repeat(width - leftW - rightW);
+						return [truncateToWidth(left + pad + tpsText, width)];
+					}
+					return [truncateToWidth(left + " " + tpsText, width)];
+				}
+				return [truncateToWidth(" " + left, width)];
 			},
 		};
 	};
