@@ -207,11 +207,11 @@ function buildPatchCallComponent(component: PatchCallComponent, args: any, theme
 
   const lines = body.split("\n");
   const FOLD_THRESHOLD = 45;
+  const isOverwrite = "isOverwrite" in preview && preview.isOverwrite;
 
   component.addChild(new Spacer(1));
   if (lines.length > FOLD_THRESHOLD && !expanded) {
     const shown = lines.slice(0, 10).join("\n");
-    const isOverwrite = "isOverwrite" in preview && preview.isOverwrite;
     if (isOverwrite) {
       component.addChild(new Text(theme.fg("toolDiffAdded", shown), 0, 0));
     } else {
@@ -222,7 +222,6 @@ function buildPatchCallComponent(component: PatchCallComponent, args: any, theme
       0, 0,
     ));
   } else {
-    const isOverwrite = "isOverwrite" in preview && preview.isOverwrite;
     if (isOverwrite) {
       component.addChild(new Text(theme.fg("toolDiffAdded", body), 0, 0));
     } else {

@@ -158,8 +158,6 @@ function collectGit(
     }
   }
 
-  const ignoredFileSet = new Set(ignoredFiles);
-
   // Visible files → candidates
   const dirSet = new Set<string>();
   for (const f of visibleFiles) {
@@ -344,8 +342,9 @@ function smartSearch(candidates: FileCandidate[], query: string): string[] {
 function atPrefix(text: string): string | null {
   for (let i = text.length - 1; i >= 0; i--) {
     if (text[i] !== "@") continue;
-    const b = text[i - 1];
-    if (i === 0 || b === " " || b === "\t" || b === "(" || b === "[") return text.slice(i);
+    if (i === 0) return text.slice(i);
+    const prev = text[i - 1];
+    if (prev === " " || prev === "\t" || prev === "(" || prev === "[") return text.slice(i);
     return null;
   }
   return null;

@@ -29,7 +29,7 @@ export default function (pi: ExtensionAPI) {
     },
   });
 
-  pi.on("before_agent_start", async (event) => {
+  pi.on("before_agent_start", (event) => {
     if (!shouldInjectRetryNote) return;
     shouldInjectRetryNote = false;
     return { systemPrompt: event.systemPrompt + "\n\nThe previous turn was interrupted by the system." };
