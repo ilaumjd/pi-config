@@ -173,19 +173,17 @@ function createFooterRenderer(ctx: ExtensionContext, pi: ExtensionAPI) {
 					.sort((a, b) => a[0].localeCompare(b[0]))
 					.map(([, text]) => text);
 
+				const margin = 1;
+				const contentW = Math.max(0, width - margin * 2);
 				const left = theme.fg("dim", otherTexts.join(" "));
 				if (tpsText) {
-					const margin = 1;
-					const contentW = width - margin;
 					const leftW = visibleWidth(left);
 					const rightW = visibleWidth(tpsText);
-					if (leftW + rightW + 2 <= contentW) {
-						const pad = " ".repeat(contentW - leftW - rightW);
-						return [truncateToWidth(" " + left + pad + tpsText, width)];
-					}
-					return [truncateToWidth(" " + left + " " + tpsText, width)];
+					const pad = " ".repeat(Math.max(0, contentW - leftW - rightW));
+					const line = truncateToWidth(left + pad + tpsText, contentW);
+					return [" " + line + " "];
 				}
-				return [truncateToWidth(" " + left, width)];
+				return [" " + truncateToWidth(left, contentW) + " "];
 			},
 		};
 	};
