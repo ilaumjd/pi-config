@@ -1,8 +1,0 @@
-{
-  "name": "firecrawl-search",
-  "version": "1.0.0",
-  "private": true,
-  "dependencies": {
-    "@mendable/firecrawl-js": "^1.0.0"
-  }
-}
