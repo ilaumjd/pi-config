@@ -50,6 +50,7 @@ Three custom `.ts` extensions in `extensions/`:
 - **`custom-footer.ts`** — compact status bar footer (branch, model, tokens, cost). Toggle with `/footer` command.
 - **`pi-info.ts`** — system info viewer. Usage: `/info`, `/info all`, `/info tools`, `/info models`, `/info extensions`, `/info commands`, `/info context`
 - **`youtube-transcript/`** — fetch YouTube video transcripts and inject them into the conversation (directory-based extension with own `package.json`). Usage: `/youtube-transcript <video-url-or-id>` fetches the transcript and passes it to the agent as a user message. Registers the `youtube_transcript` tool for LLM use.
+- **`ask-user.ts`** — lean interactive `ask_user` tool (lean rebuild of `pi-ask-user` npm package). Registers the `ask_user` tool for decision gates. Supports single-select from options and freeform text input. Skill file at `extensions/ask-user.skill/` is registered via `resources_discover` event.
 
 Extensions are auto-discovered by pi: any `.ts`/`.js` file or directory with `index.ts`/`index.js`/`package.json` in `~/.pi/agent/extensions/` or `<project>/.pi/extensions/`.
 
@@ -61,7 +62,7 @@ Extensions with their own npm dependencies (e.g. `youtube-transcript/`) use a di
 
 ## Runtime-loaded packages (settings.json)
 
-pi loads only these packages at runtime (from `settings.json.packages` array): pi-web-access, pi-mcp-adapter, pi-total-recall, pi-ask-user, decorated-pi, pi-simplify, pi-lens, pi-subagents.
+pi loads only these packages at runtime (from `settings.json.packages` array): pi-web-access, pi-mcp-adapter, pi-total-recall, decorated-pi, pi-simplify, pi-lens, pi-subagents. (`pi-ask-user` was replaced by the custom `extensions/ask-user.ts` extension.)
 
 Packages in `npm/package.json` but absent from this list (e.g. pi-fzf, pi-image-preview) are installed locally but not loaded by pi at startup.
 
