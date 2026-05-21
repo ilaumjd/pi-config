@@ -8,7 +8,10 @@
  *   /yeet skip push    → add + commit only
  */
 
-import type { ExtensionAPI, ExtensionCommandContext } from "@earendil-works/pi-coding-agent";
+import type {
+	ExtensionAPI,
+	ExtensionCommandContext,
+} from "@earendil-works/pi-coding-agent";
 
 const YEET_PROMPT = `Commit and push the current repository changes.
 
@@ -22,9 +25,7 @@ Steps:
 5. After pushing, output the remote URL for what was pushed if the repository has a remote.
    - If the current branch is \`main\`, output the normal remote repository URL.
    - If the current branch is not \`main\`, output a URL to create a pull request from the pushed branch into \`main\`.
-   - Convert SSH git remotes like \`git@github.com:owner/repo.git\` to HTTPS URLs when printing.
-
-Keep the commit message concise.`;
+   - Convert SSH git remotes like \`git@github.com:owner/repo.git\` to HTTPS URLs when printing.`;
 
 export default function (pi: ExtensionAPI): void {
 	pi.registerCommand("yeet", {
