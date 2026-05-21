@@ -33,7 +33,7 @@
     "muted": "comment",
     "dim": "mute",
     "text": "text",
-    "thinkingText": "text_inactive",
+    "thinkingText": "mute",
     "selectedBg": "selection",
     "userMessageBg": "current_line",
     "userMessageText": "text",
