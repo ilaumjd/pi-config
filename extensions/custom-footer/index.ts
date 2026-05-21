@@ -175,13 +175,15 @@ function createFooterRenderer(ctx: ExtensionContext, pi: ExtensionAPI) {
 
 				const left = theme.fg("dim", otherTexts.join(" "));
 				if (tpsText) {
+					const margin = 1;
+					const contentW = width - margin;
 					const leftW = visibleWidth(left);
 					const rightW = visibleWidth(tpsText);
-					if (leftW + rightW + 2 <= width) {
-						const pad = " ".repeat(width - leftW - rightW);
-						return [truncateToWidth(left + pad + tpsText, width)];
+					if (leftW + rightW + 2 <= contentW) {
+						const pad = " ".repeat(contentW - leftW - rightW);
+						return [truncateToWidth(" " + left + pad + tpsText, width)];
 					}
-					return [truncateToWidth(left + " " + tpsText, width)];
+					return [truncateToWidth(" " + left + " " + tpsText, width)];
 				}
 				return [truncateToWidth(" " + left, width)];
 			},
