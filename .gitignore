@@ -14,6 +14,10 @@ mcp-cache.json
 # Extension runtime data
 extensions/app_data/
 
+# Extension local dependencies (directory-based extensions with their own package.json)
+extensions/*/node_modules/
+extensions/*/package-lock.json
+
 # LSP cache
 .pi-lens/
 

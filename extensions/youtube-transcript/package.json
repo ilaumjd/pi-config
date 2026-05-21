@@ -1,0 +1,10 @@
+{
+  "name": "youtube-transcript-extension",
+  "private": true,
+  "dependencies": {
+    "youtube-transcript-plus": "^2.0.0"
+  },
+  "pi": {
+    "extensions": ["./index.ts"]
+  }
+}
