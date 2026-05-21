@@ -1,46 +1,11 @@
-import { readFileSync } from "node:fs";
-import { homedir } from "node:os";
-import { join } from "node:path";
 import Firecrawl from "@mendable/firecrawl-js";
 import type { ExtensionAPI } from "@earendil-works/pi-coding-agent";
 import { StringEnum } from "@earendil-works/pi-ai";
 import { Type } from "@sinclair/typebox";
-
-function readEnvValue(name: string) {
-  if (process.env[name]) return process.env[name];
-
-  const envPath = join(homedir(), ".pi", "agent", ".env");
-  let envText = "";
-
-  try {
-    envText = readFileSync(envPath, "utf8");
-  } catch {
-    return undefined;
-  }
-
-  for (const line of envText.split(/\r?\n/)) {
-    const trimmed = line.trim();
-    if (!trimmed || trimmed.startsWith("#")) continue;
-
-    const match = trimmed.match(/^(?:export\s+)?([A-Za-z_][A-Za-z0-9_]*)\s*=\s*(.*)$/);
-    if (!match || match[1] !== name) continue;
-
-    const value = match[2].trim();
-    if (
-      (value.startsWith('"') && value.endsWith('"')) ||
-      (value.startsWith("'") && value.endsWith("'"))
-    ) {
-      return value.slice(1, -1);
-    }
-
-    return value.replace(/\s+#.*$/, "");
-  }
-
-  return undefined;
-}
+import { readEnv } from "../lib/env";
 
 function createClient() {
-  const apiKey = readEnvValue("FIRECRAWL_API_KEY");
+  const apiKey = readEnv("FIRECRAWL_API_KEY");
   if (!apiKey) {
     throw new Error("Missing FIRECRAWL_API_KEY in environment or ~/.pi/agent/.env");
   }
