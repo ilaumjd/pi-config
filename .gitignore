@@ -3,7 +3,7 @@ settings.json
 
 # Secrets
 auth.json
-/.env
+.env
 
 # Generated / runtime
 npm/
@@ -11,6 +11,7 @@ sessions/
 run-history.jsonl
 models.json
 mcp-cache.json
+mcp-onboarding.json
 
 # Extension runtime data
 extensions/app_data/
