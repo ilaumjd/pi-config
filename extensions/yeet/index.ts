@@ -14,7 +14,7 @@ const YEET_PROMPT = `Commit and push the current repository changes.
 
 Steps:
 1. Add all unstaged changes with \`git add -A\`.
-2. Inspect the staged changes and write a concise commit message that accurately summarizes them.
+2. Inspect the staged changes and write a concise commit message using conventional commit format (feat, fix, refactor, chore, docs, style, test, perf, ci, build).
 3. Commit the changes with that message.
 4. Push the commit to the current branch's remote.
    - If the current branch does not have an upstream remote branch, create one by pushing with upstream tracking.
