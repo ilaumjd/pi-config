@@ -1,15 +1,12 @@
 /**
  * ask_user — Lean interactive decision gate for pi.
  *
- * Single-file extension. Registers the `ask_user` tool for inline
- * decision selection (single-select from options + freeform).
+ * Registers the `ask_user` tool for inline decision selection
+ * (single-select from options + freeform).
  *
  * Import resolution: @earendil-works/* and typebox are resolved by pi's
  * runtime (jiti), not from local node_modules.
  */
-
-import { fileURLToPath } from "node:url";
-import { dirname, resolve } from "node:path";
 
 import type { ExtensionAPI, ExtensionContext } from "@earendil-works/pi-coding-agent";
 import { Type } from "@sinclair/typebox";
@@ -242,14 +239,6 @@ async function handleAsk(
 // ---------------------------------------------------------------------------
 
 export default function (pi: ExtensionAPI): void {
-	// Register the ask-user skill on reload/startup
-	pi.on("resources_discover", () => {
-		const dir = dirname(fileURLToPath(import.meta.url));
-		return {
-			skillPaths: [resolve(dir, "ask-user.skill")],
-		};
-	});
-
 	pi.registerTool({
 		name: "ask_user",
 		label: "Ask User",

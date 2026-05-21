@@ -1,0 +1,8 @@
+{
+  "name": "ask-user",
+  "private": true,
+  "pi": {
+    "extensions": ["./index.ts"],
+    "skills": ["./skills"]
+  }
+}

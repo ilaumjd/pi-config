@@ -45,21 +45,21 @@ After editing any config file → run `/reload` in pi.
 
 ## Extensions
 
-Five custom `.ts` extensions in `extensions/`:
+Five directory-based extensions in `extensions/`:
 
-- **`custom-footer.ts`** — compact status bar footer (branch, model, tokens, cost). Toggle with `/footer` command.
-- **`pi-info.ts`** — system info viewer. Usage: `/info`, `/info all`, `/info tools`, `/info models`, `/info extensions`, `/info commands`, `/info context`
-- **`youtube-transcript/`** — fetch YouTube video transcripts and inject them into the conversation (directory-based extension with own `package.json`). Usage: `/youtube-transcript <video-url-or-id>` fetches the transcript and passes it to the agent as a user message. Registers the `youtube_transcript` tool for LLM use.
-- **`ask-user.ts`** — lean interactive `ask_user` tool (lean rebuild of `pi-ask-user` npm package). Registers the `ask_user` tool for decision gates. Supports single-select from options and freeform text input. Skill file at `extensions/ask-user.skill/` is registered via `resources_discover` event.
-- **`yeet.ts`** — add, commit, push, and optionally create a PR. Usage: `/yeet` for standard flow, `/yeet skip push` for commit only.
+- **`custom-footer/`** — compact status bar footer (branch, model, tokens, cost). Toggle with `/footer` command.
+- **`pi-info/`** — system info viewer. Usage: `/info`, `/info all`, `/info tools`, `/info models`, `/info extensions`, `/info commands`, `/info context`
+- **`youtube-transcript/`** — fetch YouTube video transcripts and inject them into the conversation. Usage: `/youtube-transcript <video-url-or-id>` fetches the transcript and passes it to the agent as a user message. Registers the `youtube_transcript` tool for LLM use. Has own `package.json` + `node_modules/` for `youtube-transcript-plus` dependency.
+- **`ask-user/`** — lean interactive `ask_user` tool (rebuild of `pi-ask-user` npm package). Registers the `ask_user` tool for decision gates. Supports single-select from options and freeform text input. Has `package.json` to declare the `ask-user` skill via `pi.skills`.
+- **`yeet/`** — add, commit, push, and optionally create a PR. Usage: `/yeet` for standard flow, `/yeet skip push` for commit only.
 
-Extensions are auto-discovered by pi: any `.ts`/`.js` file or directory with `index.ts`/`index.js`/`package.json` in `~/.pi/agent/extensions/` or `<project>/.pi/extensions/`.
+Extensions are auto-discovered by pi: any directory with `index.ts`/`index.js` or `package.json` in `~/.pi/agent/extensions/` or `<project>/.pi/extensions/`. A `package.json` is only needed when the extension has external npm dependencies or needs to declare skills/prompts/themes.
 
 ## npm packages
 
 Managed in `npm/package.json` (private, gitignored). Local dependencies include: decorated-pi, pi-lens, pi-subagents, pi-mcp-adapter, pi-simplify, pi-total-recall, pi-web-access, pi-ask-user, pi-fzf, pi-image-preview, @plannotator/pi-extension.
 
-Extensions with their own npm dependencies (e.g. `youtube-transcript/`) use a directory pattern with their own `package.json` and `node_modules/`.
+Extensions with their own npm dependencies (e.g. `youtube-transcript/`) use a directory pattern with their own `package.json` and `node_modules/`. Extensions with skills (e.g. `ask-user/`) declare them via `pi.skills` in `package.json`.
 
 ## Runtime-loaded packages (settings.json)
 
