@@ -26,3 +26,4 @@ extensions/*/package-lock.json
 # OS files
 .DS_Store
 plan
+pi-crash.log

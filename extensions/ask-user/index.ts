@@ -8,7 +8,10 @@
  * runtime (jiti), not from local node_modules.
  */
 
-import type { ExtensionAPI, ExtensionContext } from "@earendil-works/pi-coding-agent";
+import type {
+	ExtensionAPI,
+	ExtensionContext,
+} from "@earendil-works/pi-coding-agent";
 import { Type } from "@sinclair/typebox";
 import {
 	SelectList,
@@ -18,6 +21,7 @@ import {
 	type Theme,
 	type TUI,
 	type KeybindingsManager,
+	truncateToWidth,
 } from "@earendil-works/pi-tui";
 
 // ---------------------------------------------------------------------------
@@ -39,21 +43,33 @@ function normalizeOptions(raw: unknown[]): AskOption[] {
 	return raw
 		.map((o) => {
 			if (typeof o === "string") return { title: o };
-			if (o && typeof o === "object" && "title" in o && typeof (o as any).title === "string")
+			if (
+				o &&
+				typeof o === "object" &&
+				"title" in o &&
+				typeof (o as any).title === "string"
+			)
 				return { title: (o as any).title, description: (o as any).description };
 			return null;
 		})
 		.filter((o): o is AskOption => o !== null);
 }
 
-function toSelectItems(options: AskOption[], allowFreeform: boolean): SelectItem[] {
+function toSelectItems(
+	options: AskOption[],
+	allowFreeform: boolean,
+): SelectItem[] {
 	const items: SelectItem[] = options.map((o, i) => ({
 		value: String(i),
 		label: o.title,
 		description: o.description,
 	}));
 	if (allowFreeform) {
-		items.push({ value: FREEFORM_SENTINEL, label: "✏️ Type custom response…", description: "Enter a free-form answer" });
+		items.push({
+			value: FREEFORM_SENTINEL,
+			label: "✏️ Type custom response…",
+			description: "Enter a free-form answer",
+		});
 	}
 	return items;
 }
@@ -95,7 +111,11 @@ class AskInline implements Component {
 		this.theme = theme;
 		this.done = done;
 
-		this.selectList = new SelectList(items, Math.min(items.length, 12), createSelectTheme(theme));
+		this.selectList = new SelectList(
+			items,
+			Math.min(items.length, 12),
+			createSelectTheme(theme),
+		);
 		this.selectList.onSelect = (item) => this.handleSelect(item);
 		this.selectList.onCancel = () => done(null);
 	}
@@ -115,17 +135,23 @@ class AskInline implements Component {
 	render(width: number): string[] {
 		const lines: string[] = [];
 
-		lines.push(this.theme.fg("accent", `?  ${this.question}`));
+		lines.push(
+			truncateToWidth(this.theme.fg("accent", `?  ${this.question}`), width),
+		);
 		lines.push("");
 
 		if (this.context) {
 			for (const line of this.context.split("\n")) {
-				lines.push(this.theme.fg("muted", line));
+				lines.push(truncateToWidth(this.theme.fg("muted", line), width));
 			}
 			lines.push("");
 		}
 
-		lines.push(...this.selectList.render(width));
+		// SelectList may not truncate descriptions — enforce width on all output
+		const selectLines = this.selectList.render(width);
+		for (const line of selectLines) {
+			lines.push(truncateToWidth(line, width));
+		}
 		return lines;
 	}
 
@@ -161,31 +187,63 @@ async function handleAsk(
 
 	// --- No UI available (print / RPC mode) ---
 	if (!ctx.hasUI || !ctx.ui) {
-		const optText = options.length > 0
-			? `\n\nOptions:\n${options.map((o, i) => `  ${i + 1}. ${o.title}${o.description ? ` — ${o.description}` : ""}`).join("\n")}`
-			: "";
+		const optText =
+			options.length > 0
+				? `\n\nOptions:\n${options.map((o, i) => `  ${i + 1}. ${o.title}${o.description ? ` — ${o.description}` : ""}`).join("\n")}`
+				: "";
 		const freeformHint = allowFreeform ? "\n\nYou can also answer freely." : "";
-		const contextText = normalizedContext ? `\n\nContext:\n${normalizedContext}` : "";
+		const contextText = normalizedContext
+			? `\n\nContext:\n${normalizedContext}`
+			: "";
 		return {
-			content: [{ type: "text", text: `Please answer:\n\n${question}${contextText}${optText}${freeformHint}` }],
+			content: [
+				{
+					type: "text",
+					text: `Please answer:\n\n${question}${contextText}${optText}${freeformHint}`,
+				},
+			],
 			isError: true,
-			details: { question, context: normalizedContext, options, response: null, cancelled: true },
+			details: {
+				question,
+				context: normalizedContext,
+				options,
+				response: null,
+				cancelled: true,
+			},
 		} as any;
 	}
 
 	// --- No options → use simple input ---
 	if (options.length === 0) {
-		const prompt = normalizedContext ? `${question}\n\n${normalizedContext}` : question;
-		const answer = await ctx.ui.input(prompt, "Type your answer…", timeout ? { timeout } : undefined);
+		const prompt = normalizedContext
+			? `${question}\n\n${normalizedContext}`
+			: question;
+		const answer = await ctx.ui.input(
+			prompt,
+			"Type your answer…",
+			timeout ? { timeout } : undefined,
+		);
 		if (!answer?.trim()) {
 			return {
 				content: [{ type: "text", text: "User cancelled" }],
-				details: { question, context: normalizedContext, options: [], response: null, cancelled: true },
+				details: {
+					question,
+					context: normalizedContext,
+					options: [],
+					response: null,
+					cancelled: true,
+				},
 			};
 		}
 		return {
 			content: [{ type: "text", text: `User answered: ${answer.trim()}` }],
-			details: { question, context: normalizedContext, options: [], response: { kind: "freeform", text: answer.trim() }, cancelled: false },
+			details: {
+				question,
+				context: normalizedContext,
+				options: [],
+				response: { kind: "freeform", text: answer.trim() },
+				cancelled: false,
+			},
 		};
 	}
 
@@ -196,26 +254,52 @@ async function handleAsk(
 
 	try {
 		result = await ctx.ui.custom<AskResponse | null>(
-			(_tui: TUI, theme: Theme, _keybindings: KeybindingsManager, done: (r: AskResponse | null) => void) => {
+			(
+				_tui: TUI,
+				theme: Theme,
+				_keybindings: KeybindingsManager,
+				done: (r: AskResponse | null) => void,
+			) => {
 				return new AskInline(question, normalizedContext, items, theme, done);
 			},
 		);
 	} catch (error: any) {
 		return {
-			content: [{ type: "text", text: `ask_user failed: ${error?.message ?? error}` }],
+			content: [
+				{ type: "text", text: `ask_user failed: ${error?.message ?? error}` },
+			],
 			isError: true,
-			details: { question, context: normalizedContext, options, response: null, cancelled: true, error: String(error) },
+			details: {
+				question,
+				context: normalizedContext,
+				options,
+				response: null,
+				cancelled: true,
+				error: String(error),
+			},
 		};
 	}
 
 	// --- Handle freeform selection from the inline list ---
 	if (result?.kind === "freeform" && result.text === "") {
-		const prompt = normalizedContext ? `${question}\n\n${normalizedContext}` : question;
-		const answer = await ctx.ui.input(prompt, "Type your answer…", timeout ? { timeout } : undefined);
+		const prompt = normalizedContext
+			? `${question}\n\n${normalizedContext}`
+			: question;
+		const answer = await ctx.ui.input(
+			prompt,
+			"Type your answer…",
+			timeout ? { timeout } : undefined,
+		);
 		if (!answer?.trim()) {
 			return {
 				content: [{ type: "text", text: "User cancelled" }],
-				details: { question, context: normalizedContext, options, response: null, cancelled: true },
+				details: {
+					question,
+					context: normalizedContext,
+					options,
+					response: null,
+					cancelled: true,
+				},
 			};
 		}
 		result = { kind: "freeform", text: answer.trim() };
@@ -224,13 +308,27 @@ async function handleAsk(
 	if (!result) {
 		return {
 			content: [{ type: "text", text: "User cancelled" }],
-			details: { question, context: normalizedContext, options, response: null, cancelled: true },
+			details: {
+				question,
+				context: normalizedContext,
+				options,
+				response: null,
+				cancelled: true,
+			},
 		};
 	}
 
 	return {
-		content: [{ type: "text", text: `User answered: ${formatResponse(result)}` }],
-		details: { question, context: normalizedContext, options, response: result, cancelled: false },
+		content: [
+			{ type: "text", text: `User answered: ${formatResponse(result)}` },
+		],
+		details: {
+			question,
+			context: normalizedContext,
+			options,
+			response: result,
+			cancelled: false,
+		},
 	};
 }
 
@@ -244,7 +342,8 @@ export default function (pi: ExtensionAPI): void {
 		label: "Ask User",
 		description:
 			"Ask the user a question with optional multiple-choice answers. Use this to gather information interactively. Ask exactly one focused question per call. Before calling, gather context with tools (read/web/ref) and pass a short summary via the context field.",
-		promptSnippet: "Ask the user one focused question with optional multiple-choice answers to gather information interactively",
+		promptSnippet:
+			"Ask the user one focused question with optional multiple-choice answers to gather information interactively",
 		promptGuidelines: [
 			"Before calling ask_user, gather context with tools (read/web/ref) and pass a short summary via the context field.",
 			"Use ask_user when the user's intent is ambiguous, when a decision requires explicit user input, or when multiple valid options exist.",
@@ -254,16 +353,23 @@ export default function (pi: ExtensionAPI): void {
 		parameters: Type.Object({
 			question: Type.String({ description: "The question to ask the user" }),
 			context: Type.Optional(
-				Type.String({ description: "Relevant context to show before the question (summary of findings)" }),
+				Type.String({
+					description:
+						"Relevant context to show before the question (summary of findings)",
+				}),
 			),
 			options: Type.Optional(
 				Type.Array(
 					Type.Union([
 						Type.String({ description: "Short title for this option" }),
 						Type.Object({
-							title: Type.String({ description: "Short title for this option" }),
+							title: Type.String({
+								description: "Short title for this option",
+							}),
 							description: Type.Optional(
-								Type.String({ description: "Longer description explaining this option" }),
+								Type.String({
+									description: "Longer description explaining this option",
+								}),
 							),
 						}),
 					]),
@@ -271,13 +377,20 @@ export default function (pi: ExtensionAPI): void {
 				),
 			),
 			allowMultiple: Type.Optional(
-				Type.Boolean({ description: "Allow selecting multiple options. Default: false" }),
+				Type.Boolean({
+					description: "Allow selecting multiple options. Default: false",
+				}),
 			),
 			allowFreeform: Type.Optional(
-				Type.Boolean({ description: "Add a freeform text option. Default: true" }),
+				Type.Boolean({
+					description: "Add a freeform text option. Default: true",
+				}),
 			),
 			timeout: Type.Optional(
-				Type.Number({ description: "Auto-dismiss after N milliseconds. Returns null (cancelled) when expired." }),
+				Type.Number({
+					description:
+						"Auto-dismiss after N milliseconds. Returns null (cancelled) when expired.",
+				}),
 			),
 		}),
 
