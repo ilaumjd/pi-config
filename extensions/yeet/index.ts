@@ -24,7 +24,7 @@ Steps:
    c. Write a concise commit message using conventional commit format (feat, fix, refactor, chore, docs, style, test, perf, ci, build).
    d. Commit.
 4. Push all commits to the current branch's remote.
-   - First, check if the remote repository belongs to you. Get the remote URL and your git config user info (\`git config user.name\`, \`git config github.user\`). If the remote URL's owner (e.g. the org/user in \`github.com/owner/repo\`) does not match your identity, do NOT push — just report that the remote is not yours and skip pushing.
+   - If the remote URL's owner (e.g. the org/user in \`github.com/owner/repo\`) is not \`ilaumjd\`, do NOT push — just report that the remote is not yours and skip pushing.
    - If the current branch does not have an upstream remote branch, create one by pushing with upstream tracking.
    - If this repository has no git remotes configured, do not push.
 5. After pushing, output the remote URL for what was pushed if the repository has a remote.
