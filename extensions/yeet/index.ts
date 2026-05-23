@@ -4,7 +4,7 @@
  * Ported from https://github.com/davis7dotsh/my-pi-setup
  *
  * Usage:
- *   /yeet              → standard add → commit → push flow
+ *   /yeet              → add, commit, and push the current repo changes
  *   /yeet skip push    → add + commit only
  */
 
@@ -16,10 +16,15 @@ import type {
 const YEET_PROMPT = `Commit and push the current repository changes.
 
 Steps:
-1. Add all unstaged changes with \`git add -A\`.
-2. Inspect the staged changes and write a concise commit message using conventional commit format (feat, fix, refactor, chore, docs, style, test, perf, ci, build).
-3. Commit the changes with that message.
-4. Push the commit to the current branch's remote.
+1. Inspect all changed files with \`git status\` and \`git diff --stat\`.
+2. Analyze the changes and decide whether they belong in one commit or multiple logical commits (group by concern, directory, or type of change).
+3. For each logical group:
+   a. Stage the relevant files with \`git add <files>\`.
+   b. Inspect the staged changes.
+   c. Write a concise commit message using conventional commit format (feat, fix, refactor, chore, docs, style, test, perf, ci, build).
+   d. Commit.
+4. Push all commits to the current branch's remote.
+   - First, check if the remote repository belongs to you. Get the remote URL and your git config user info (\`git config user.name\`, \`git config github.user\`). If the remote URL's owner (e.g. the org/user in \`github.com/owner/repo\`) does not match your identity, do NOT push — just report that the remote is not yours and skip pushing.
    - If the current branch does not have an upstream remote branch, create one by pushing with upstream tracking.
    - If this repository has no git remotes configured, do not push.
 5. After pushing, output the remote URL for what was pushed if the repository has a remote.
